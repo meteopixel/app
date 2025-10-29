@@ -5,6 +5,8 @@ import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { isAdmin } from '@/lib/storage';
+import { ThemedText } from '@/components/themed-text';
 
 export default function TabLayout() {
 	const colorScheme = useColorScheme();
@@ -22,7 +24,15 @@ export default function TabLayout() {
 					title: 'Home',
 					tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
 				}}
+			/>{isAdmin() && <Tabs.Screen
+				name="sensors"
+				options={{
+					title: 'Sensor',
+					tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+				}}
 			/>
+			}
+
 			<Tabs.Screen
 				name="account"
 				options={{
