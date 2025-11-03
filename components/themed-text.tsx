@@ -1,6 +1,7 @@
 import { StyleSheet, Text, type TextProps } from 'react-native';
 
 import { useThemeColor } from '@/hooks/use-theme-color';
+import { Fonts } from '@/constants/fonts';
 
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
@@ -20,7 +21,7 @@ export function ThemedText({
   return (
     <Text
       style={[
-        { color },
+        { fontFamily: Fonts.pixelify, color },
         type === 'default' ? styles.default : undefined,
         type === 'title' ? styles.title : undefined,
         type === 'defaultSemiBold' ? styles.defaultSemiBold : undefined,

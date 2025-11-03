@@ -8,7 +8,8 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "generate-icons": "bun run scripts/generate-pixelart-icons.ts"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -30,6 +31,8 @@
     "expo-symbols": "~1.0.7",
     "expo-system-ui": "~6.0.8",
     "expo-web-browser": "~15.0.8",
+    "nativewind": "^4.2.1",
+    "pixelarticons": "^1.8.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
@@ -39,8 +42,10 @@
     "react-native-reanimated": "~4.1.1",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
+    "react-native-svg": "^15.14.0",
     "react-native-web": "~0.21.0",
-    "react-native-worklets": "0.5.1"
+    "react-native-worklets": "0.5.1",
+    "tailwindcss": "^3"
   },
   "devDependencies": {
     "@types/react": "~19.1.0",

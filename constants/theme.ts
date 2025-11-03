@@ -4,10 +4,12 @@
  */
 
 import { Platform } from 'react-native';
+import { ColorScheme } from './colors';
 
 const tintColorLight = '#0a7ea4';
 const tintColorDark = '#fff';
 
+// Legacy colors - kept for backward compatibility
 export const Colors = {
   light: {
     text: '#11181C',
@@ -27,6 +29,10 @@ export const Colors = {
   },
 };
 
+// New color scheme - prepared but not yet applied
+// Import from './colors' for the new design system
+export { ColorScheme };
+
 export const Fonts = Platform.select({
   ios: {
     /** iOS `UIFontDescriptorSystemDesignDefault` */
@@ -37,17 +43,23 @@ export const Fonts = Platform.select({
     rounded: 'ui-rounded',
     /** iOS `UIFontDescriptorSystemDesignMonospaced` */
     mono: 'ui-monospace',
+    /** Pixelify Sans - prepared but not yet applied */
+    pixelify: 'PixelifySans-Regular',
   },
   default: {
     sans: 'normal',
     serif: 'serif',
     rounded: 'normal',
     mono: 'monospace',
+    /** Pixelify Sans - prepared but not yet applied */
+    pixelify: 'PixelifySans-Regular',
   },
   web: {
     sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
     serif: "Georgia, 'Times New Roman', serif",
     rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
     mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+    /** Pixelify Sans - prepared but not yet applied */
+    pixelify: "'Pixelify Sans', sans-serif",
   },
 });

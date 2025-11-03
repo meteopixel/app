@@ -2,11 +2,11 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 
 import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import { PixelartIcon } from '@/components/ui/pixelart-icon';
+import { Fonts } from '@/constants/fonts';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { isAdmin } from '@/lib/storage';
-import { ThemedText } from '@/components/themed-text';
 
 export default function TabLayout() {
 	const colorScheme = useColorScheme();
@@ -17,18 +17,21 @@ export default function TabLayout() {
 				tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
 				headerShown: false,
 				tabBarButton: HapticTab,
+				tabBarLabelStyle: {
+					fontFamily: Fonts.pixelify,
+				},
 			}}>
 			<Tabs.Screen
 				name="index"
 				options={{
 					title: 'Home',
-					tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+					tabBarIcon: ({ color }) => <PixelartIcon name="home" size={28} color={color} />,
 				}}
 			/>{isAdmin() && <Tabs.Screen
 				name="sensors"
 				options={{
 					title: 'Sensor',
-					tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+					tabBarIcon: ({ color }) => <PixelartIcon name="devices" size={28} color={color} />,
 				}}
 			/>
 			}
@@ -37,7 +40,7 @@ export default function TabLayout() {
 				name="account"
 				options={{
 					title: 'Account',
-					tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
+					tabBarIcon: ({ color }) => <PixelartIcon name="user" size={28} color={color} />,
 				}}
 			/>
 		</Tabs>
