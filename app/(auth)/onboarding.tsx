@@ -1,10 +1,12 @@
+import { Input } from '@/components/input';
 import { Text } from '@/components/text';
+import { PixelartIcon } from '@/components/ui/pixelart-icon';
 import { DEFAULT_API_URL } from '@/constants/api';
 import '@/global.css';
 import { storage } from '@/lib/storage';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Modal, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Modal, TouchableOpacity, View } from 'react-native';
 
 export default function OnboardingScreen() {
 	const [showServerModal, setShowServerModal] = useState(false);
@@ -58,6 +60,10 @@ export default function OnboardingScreen() {
 		setServerUrl('');
 	};
 
+	const handleUseCloud = () => {
+		setServerUrl(DEFAULT_API_URL);
+	};
+
 	return (
 		<View className="flex-1 bg-bg-primary px-6">
 			<View className="flex-1 mt-24 justify-start items-center">
@@ -95,23 +101,23 @@ export default function OnboardingScreen() {
 				onRequestClose={handleCancelServer}
 			>
 				<View className="flex-1 justify-center items-center px-6" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-					<View className="bg-bg-secondary rounded-lg p-6 w-full max-w-sm border border-border">
+					<View className="bg-bg-secondary rounded-lg px-6 pt-8 pb-0 w-full max-w-sm border border-border">
 						<Text className="text-text-primary text-xl mb-4 text-center">
 							Choose Server
 						</Text>
 						
-						<TextInput
-							value={serverUrl}
-							onChangeText={setServerUrl}
-							placeholder="Enter server URL (e.g., http://127.0.0.1:8080)"
-							placeholderTextColor="#8b95a8"
-							className="bg-bg-tertiary text-text-primary px-4 py-3 rounded-lg mb-4 border border-border"
-							autoCapitalize="none"
-							autoCorrect={false}
-							keyboardType="url"
-						/>
+					<Input
+						value={serverUrl}
+						onChangeText={setServerUrl}
+						placeholder="Enter server URL (e.g., http://127.0.0.1:8080)"
+						placeholderTextColor="#8b95a8"
+						className="bg-bg-tertiary text-text-primary px-4 py-3 rounded-lg mb-4 border border-border"
+						autoCapitalize="none"
+						autoCorrect={false}
+						keyboardType="url"
+					/>
 
-						<View className="flex-row gap-3">
+						<View className="flex-row gap-3 justify-around">
 							<TouchableOpacity
 								onPress={handleCancelServer}
 								className="flex-1 border-2 border-border py-3 rounded-lg items-center justify-center"
@@ -130,6 +136,19 @@ export default function OnboardingScreen() {
 								<Text className="text-text-primary">
 									Save
 								</Text>
+							</TouchableOpacity>
+						</View>
+
+						<View className="mt-6 pb-6">
+							<TouchableOpacity
+								onPress={handleUseCloud}
+								className="flex-row items-center justify-center gap-2 py-4"
+								activeOpacity={0.8}
+							>
+								<Text className="text-accent-primary text-sm">
+									Use Cloud
+								</Text>
+								<PixelartIcon name="cloud" size={20} color="#58a6ff" />
 							</TouchableOpacity>
 						</View>
 					</View>

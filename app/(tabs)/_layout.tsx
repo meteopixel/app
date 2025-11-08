@@ -28,9 +28,9 @@ export default function TabLayout() {
 					tabBarIcon: ({ color }) => <PixelartIcon name="home" size={28} color={color} />,
 				}}
 			/>{isAdmin() && <Tabs.Screen
-				name="sensors"
+				name="stations"
 				options={{
-					title: 'Sensor',
+					title: 'Stations',
 					tabBarIcon: ({ color }) => <PixelartIcon name="devices" size={28} color={color} />,
 				}}
 			/>

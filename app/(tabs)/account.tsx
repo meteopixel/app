@@ -1,29 +1,12 @@
 import { Text } from '@/components/text';
 import { DEFAULT_API_URL } from '@/constants/api';
-import { fetchUserInfo, userData } from '@/lib/fetch';
 import { storage } from '@/lib/storage';
+import { useUserInfo } from '@/lib/queries/useUserInfo';
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
 import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 
 export default function Account() {
-	const [user, setUser] = useState<userData | null>(null);
-	const [loading, setLoading] = useState(true);
-
-	useEffect(() => {
-		const loadUser = async () => {
-			try {
-				const userData = await fetchUserInfo();
-				setUser(userData);
-			} catch (error) {
-				console.error('Failed to load user:', error);
-			} finally {
-				setLoading(false);
-			}
-		};
-
-		loadUser();
-	}, []);
+	const { data: user, isLoading: loading, error } = useUserInfo();
 
 	const handleLogout = () => {
 		// Clear user authentication data
@@ -47,7 +30,7 @@ export default function Account() {
 				<Text className="text-6xl text-text-primary mb-4">
 					Account
 				</Text>
-				{loading ? (
+				{loading && !user ? (
 					<View className="items-center mt-8">
 						<ActivityIndicator size="large" color="#58a6ff" />
 					</View>

@@ -1,8 +1,93 @@
 import { getApiUrl } from "@/constants/api";
 import { navigate } from "expo-router/build/global-state/routing";
 import { storage } from "./storage";
+import type {
+	AuthUserInfo,
+	Station,
+	CreateStationInput,
+	CreateStationOutput,
+	UpdateStationInput,
+	UpdateStationOutput,
+	RegenerateTokenOutput,
+	PgtypePoint,
+	PgtypeText,
+	PgtypeTimestamp,
+} from "./types";
+import type { AuthProvider } from "@/constants/providers";
 
-export const fetchUserInfo = async () => {
+export const fetchAuthProviders = async (): Promise<AuthProvider[]> => {
+	try {
+		const response = await fetch(`${getApiUrl()}/auth/providers`, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		});
+
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+
+		const providerNames: string[] = await response.json();
+		// Transform array of strings to AuthProvider format
+		return providerNames.map(name => ({ name }));
+	} catch (error) {
+		console.error('Error fetching auth providers:', error);
+		throw error;
+	}
+};
+
+// Transform backend station format to frontend format
+function transformStation(backendStation: Station): Station {
+	// Parse location from "(x,y)" string format
+	let location: PgtypePoint | undefined;
+	if (backendStation.Location) {
+		const locStr = backendStation.Location.trim().replace(/[()]/g, '');
+		const parts = locStr.split(',');
+		if (parts.length === 2) {
+			const x = parseFloat(parts[0].trim());
+			const y = parseFloat(parts[1].trim());
+			if (!isNaN(x) && !isNaN(y)) {
+				location = {
+					p: { x, y },
+					valid: true,
+				};
+			} else {
+				location = { valid: false };
+			}
+		} else {
+			location = { valid: false };
+		}
+	}
+
+	// Transform name to PgtypeText
+	const name: PgtypeText | undefined = backendStation.Name
+		? { string: backendStation.Name, valid: true }
+		: undefined;
+
+	// Transform CreatedAt to PgtypeTimestamp
+	const createdAt: PgtypeTimestamp | undefined = backendStation.CreatedAt
+		? { time: backendStation.CreatedAt, valid: true }
+		: undefined;
+
+	return {
+		id: backendStation.ID,
+		name,
+		createdBy: backendStation.CreatedBy,
+		location,
+		createdAt,
+		email: backendStation.Email,
+		// Keep original fields for reference
+		ID: backendStation.ID,
+		Name: backendStation.Name,
+		CreatedBy: backendStation.CreatedBy,
+		Location: backendStation.Location,
+		CreatedAt: backendStation.CreatedAt,
+		Email: backendStation.Email,
+	};
+}
+
+export const fetchUserInfo = async (): Promise<AuthUserInfo> => {
 	const sessionToken = storage.getString("session_token");
 	if (!sessionToken) {
 		storage.clearAll();
@@ -27,7 +112,7 @@ export const fetchUserInfo = async () => {
 			throw new Error(`HTTP error! status: ${response.status}`);
 		}
 
-		const userData: userData = await response.json();
+		const userData: AuthUserInfo = await response.json();
 		return userData;
 	} catch (error) {
 		console.error('Error fetching user info:', error);
@@ -35,7 +120,7 @@ export const fetchUserInfo = async () => {
 	}
 };
 
-export const fetchStations = async () => {
+export const fetchStations = async (): Promise<Station[]> => {
 	const sessionToken = storage.getString("session_token");
 	if (!sessionToken) {
 		storage.clearAll();
@@ -60,21 +145,27 @@ export const fetchStations = async () => {
 			throw new Error(`HTTP error! status: ${response.status}`);
 		}
 
-		const stations: station[] = await response.json();
-		return stations;
+		const backendStations: Station[] = await response.json();
+		// Transform backend format to frontend format
+		return backendStations.map(transformStation);
 	} catch (error) {
 		console.error('Error fetching stations:', error);
 		throw error;
 	}
 };
 
-export const createStation = async (name: string, location: [number, number]) => {
+export const createStation = async (name: string, location: [number, number]): Promise<CreateStationOutput> => {
 	const sessionToken = storage.getString("session_token");
 	if (!sessionToken) {
 		storage.clearAll();
 		navigate("/(auth)");
 		throw new Error('No session token found');
 	}
+
+	const body: CreateStationInput = {
+		name,
+		location,
+	};
 
 	try {
 		const response = await fetch(`${getApiUrl()}/station`, {
@@ -83,10 +174,7 @@ export const createStation = async (name: string, location: [number, number]) =>
 				'Authorization': `Bearer ${sessionToken}`,
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify({
-				name,
-				location,
-			}),
+			body: JSON.stringify(body),
 		});
 
 		if (!response.ok) {
@@ -105,7 +193,7 @@ export const createStation = async (name: string, location: [number, number]) =>
 	}
 };
 
-export const updateStation = async (id: string, name?: string, location?: [number, number]) => {
+export const updateStation = async (id: string, name?: string, location?: [number, number]): Promise<UpdateStationOutput> => {
 	const sessionToken = storage.getString("session_token");
 	if (!sessionToken) {
 		storage.clearAll();
@@ -113,11 +201,11 @@ export const updateStation = async (id: string, name?: string, location?: [numbe
 		throw new Error('No session token found');
 	}
 
-	try {
-		const body: any = {};
-		if (name !== undefined) body.name = name;
-		if (location !== undefined) body.location = location;
+	const body: UpdateStationInput = {};
+	if (name !== undefined) body.name = name;
+	if (location !== undefined) body.location = location;
 
+	try {
 		const response = await fetch(`${getApiUrl()}/station/${id}`, {
 			method: 'PUT',
 			headers: {
@@ -208,55 +296,15 @@ export const regenerateStationToken = async (id: string) => {
 	}
 };
 
-export interface userData {
-	id: string,
-	email: string,
-	role: string,
-	provider: string
-}
-
-export interface pgtypeText {
-	string: string,
-	valid: boolean
-}
-
-export interface pgtypePoint {
-	p: {
-		x: number,
-		y: number
-	},
-	valid: boolean
-}
-
-export interface pgtypeTimestamp {
-	time: string,
-	valid: boolean,
-	infinityModifier?: number
-}
-
-export interface station {
-	id: string,
-	name: pgtypeText,
-	createdBy: string,
-	location: pgtypePoint,
-	createdAt: pgtypeTimestamp,
-	email: string
-}
-
-export interface CreateStationOutput {
-	id: string,
-	name: string,
-	api_key: string
-}
-
-export interface UpdateStationOutput {
-	id: string,
-	name: string,
-	location: [number, number]
-}
-
-export interface RegenerateTokenOutput {
-	id: string,
-	name: string,
-	api_key: string
-}
+// Re-export types for backward compatibility
+export type { 
+	userData, 
+	station,
+	CreateStationOutput,
+	UpdateStationOutput,
+	RegenerateTokenOutput,
+	PgtypeText, 
+	PgtypePoint, 
+	PgtypeTimestamp, 
+	PgtypeVec2 
+} from "./types";
