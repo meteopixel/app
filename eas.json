@@ -22,7 +22,8 @@
 		"production": {
 			"android": {
 				"track": "internal",
-				"applicationId": "4974975105075808608"
+				"applicationId": "4974975105075808608",
+				"releaseStatus": "completed"
 			}
 		}
 	}
