@@ -1,23 +1,20 @@
-FROM oven/bun:latest AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json bun.lockb ./
-RUN bun install --production
+COPY package.json bun.lock ./
+RUN npm install
 
 COPY . .
-RUN bun run build-web
+RUN npm run build-web
 
-FROM oven/bun:latest
+FROM oven/bun:alpine
 
 WORKDIR /app
 
 RUN bun add -g sirv-cli
 
 COPY --from=builder /app/dist ./dist
-
-RUN useradd -u 1001 -m app
-USER app
 
 EXPOSE 3000
 
