@@ -125,6 +125,7 @@ export interface LatestMeasurementsResponse {
 	pressure?: MeasurementData;
 	temprature?: MeasurementData; // Note: API has typo "temprature"
 	wind?: WindData;
+	time?: string; // ISO timestamp of the measurement
 }
 
 // Legacy type aliases for backward compatibility

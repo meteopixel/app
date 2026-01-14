@@ -121,6 +121,24 @@ const DIGIT_PATTERNS: Record<string, number[][]> = {
 		[1, 0, 0, 0, 0],
 		[1, 1, 1, 1, 1],
 	],
+	',': [
+		[0, 0, 0],
+		[0, 0, 0],
+		[0, 0, 0],
+		[0, 0, 0],
+		[0, 0, 0],
+		[0, 0, 0],
+		[0, 1, 0],
+	],
+	'.': [
+		[0, 0, 0],
+		[0, 0, 0],
+		[0, 0, 0],
+		[0, 0, 0],
+		[0, 0, 0],
+		[0, 0, 0],
+		[0, 1, 0],
+	],
 };
 
 interface PixelDigitProps {
@@ -165,13 +183,13 @@ export function PixelTemperature({
 	color = '#e6edf3',
 }: PixelTemperatureProps) {
 	const tempString = value !== undefined && !isNaN(value)
-		? `${Math.round(value)}°C`
+		? `${value.toFixed(1).replace('.', ',')}°C`
 		: '--°C';
 
 	const chars = tempString.split('');
 
 	return (
-		<View className="flex-row items-end justify-center" style={{ gap: pixelSize * 2 }}>
+		<View className="flex-row items-end justify-center" style={{ gap: pixelSize }}>
 			{chars.map((char, index) => (
 				<PixelDigit key={index} char={char} pixelSize={pixelSize} color={color} />
 			))}

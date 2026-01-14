@@ -30,14 +30,14 @@ export function StationSelector({ selectedStationId, onStationChange }: StationS
 	return (
 		<>
 			<TouchableOpacity
-				className="flex-row items-center justify-center py-2 px-3"
+				className="flex-row items-center justify-center py-2 px-4"
 				onPress={() => setIsOpen(true)}
 				activeOpacity={0.7}
 				hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
 			>
-				<ThemedText className="text-3xl text-accent-primary text-center">{stationName}</ThemedText>
-				<View className="absolute right-[-28px]">
-					<PixelartIcon name="chevron-down" size={24} color="#58a6ff" />
+				<ThemedText className="text-4xl text-accent-primary text-center">{stationName}</ThemedText>
+				<View className="absolute right-[-32px]">
+					<PixelartIcon name="chevron-down" size={28} color="#58a6ff" />
 				</View>
 			</TouchableOpacity>
 

@@ -14,8 +14,8 @@ export const useLatestMeasurements = (stationId: string | undefined) => {
 		},
 		enabled: !!stationId,
 		refetchInterval: LATEST_MEASUREMENTS_REFRESH_INTERVAL * 1000, // Convert seconds to ms
-		placeholderData: (previousData) => previousData,
 		refetchOnMount: true,
-		keepPreviousData: false,
+		staleTime: 0,
+		gcTime: 0,
 	});
 };

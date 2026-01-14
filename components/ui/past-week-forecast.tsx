@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, ScrollView } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
-import { PixelartIcon } from '@/components/ui/pixelart-icon';
 import { formatDayAbbreviation, formatTemperature } from '@/lib/utils/measurements';
 import type { MeasurementsBucket } from '@/lib/types';
 
@@ -27,7 +26,7 @@ export function PastWeekForecast({ data }: PastWeekForecastProps) {
 		<ScrollView
 			horizontal
 			showsHorizontalScrollIndicator={false}
-			contentContainerStyle={{ gap: 8 }}
+			contentContainerStyle={{ gap: 12 }}
 		>
 			{weekData.map((bucket, index) => {
 				const date = bucket.time ? new Date(bucket.time) : new Date();
@@ -35,15 +34,10 @@ export function PastWeekForecast({ data }: PastWeekForecastProps) {
 				const temp = bucket.temperature?.avg;
 				const tempFormatted = formatTemperature(temp);
 
-				// Simple logic: if temp > 15, show sun, else show cloud
-				const iconName = temp && temp > 15 ? 'sun' : 'cloud-moon';
-				const iconColor = temp && temp > 15 ? '#ffa94d' : '#7db9de';
-
 				return (
-					<View key={index} className="bg-bg-secondary rounded-lg py-3 px-4 min-w-[70px] border border-border items-center">
-						<ThemedText className="text-base text-text-primary font-semibold">{tempFormatted}</ThemedText>
-						<PixelartIcon name={iconName} size={20} color={iconColor} style={{ marginVertical: 4 }} />
-						<ThemedText className="text-xs text-text-secondary">{dayAbbr}</ThemedText>
+					<View key={index} className="bg-bg-secondary rounded-xl py-5 px-6 min-w-[90px] border border-border items-center">
+						<ThemedText className="text-2xl text-text-primary font-semibold">{tempFormatted}</ThemedText>
+						<ThemedText className="text-base text-text-secondary mt-2">{dayAbbr}</ThemedText>
 					</View>
 				);
 			})}

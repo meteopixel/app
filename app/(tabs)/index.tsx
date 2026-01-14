@@ -90,20 +90,17 @@ export default function HomeScreen() {
 	);
 
 	// Get current temperature
-	const currentTemp = (latestMeasurements as any)?.temprature?.station ?? (latestMeasurements as any)?.temprature?.official;
+	const currentTemp = latestMeasurements?.temprature?.station ?? latestMeasurements?.temprature?.official;
 
-	// Get measurement timestamp from latest measurements or last chart data point
-	// This is when the station actually sent data (for status indicator)
-	const chartDataArray = (chartData as any)?.data;
-	const lastMeasurementTime = (latestMeasurements as any)?.timestamp 
-		?? (chartDataArray && chartDataArray.length > 0 ? chartDataArray[chartDataArray.length - 1]?.time : null);
+	// Get measurement timestamp from latest measurements (for status indicator and display)
+	const lastMeasurementTime = latestMeasurements?.time;
 	const measurementDateTime = lastMeasurementTime ? formatDateTime(lastMeasurementTime) : '--';
 
 	// Get wind, humidity, pressure values
-	const windSpeed = (latestMeasurements as any)?.wind?.speed?.station ?? (latestMeasurements as any)?.wind?.speed?.official;
-	const windDirection = (latestMeasurements as any)?.wind?.direction?.station ?? (latestMeasurements as any)?.wind?.direction?.official;
-	const humidity = (latestMeasurements as any)?.humidity?.station ?? (latestMeasurements as any)?.humidity?.official;
-	const pressure = (latestMeasurements as any)?.pressure?.station ?? (latestMeasurements as any)?.pressure?.official;
+	const windSpeed = latestMeasurements?.wind?.speed?.station ?? latestMeasurements?.wind?.speed?.official;
+	const windDirection = latestMeasurements?.wind?.direction?.station ?? latestMeasurements?.wind?.direction?.official;
+	const humidity = latestMeasurements?.humidity?.station ?? latestMeasurements?.humidity?.official;
+	const pressure = latestMeasurements?.pressure?.station ?? latestMeasurements?.pressure?.official;
 
 	if (stationsLoading) {
 		return (
