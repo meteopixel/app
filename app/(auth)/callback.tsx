@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
-import { View, ActivityIndicator } from 'react-native';
-import { useLocalSearchParams, router } from 'expo-router';
-import { storage } from '@/lib/storage';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { storage } from '@/lib/storage';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect } from 'react';
+import { ActivityIndicator } from 'react-native';
 
 export default function AuthCallback() {
 	const params = useLocalSearchParams();

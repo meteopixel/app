@@ -1,18 +1,17 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Redirect, Stack, useSegments } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
+import { router, Stack, useSegments, useRootNavigationState } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 import '../global.css';
 
 import { useFonts } from '@/constants/font-loader';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { storage } from '@/lib/storage';
 import { queryClient } from '@/lib/query-client';
 import { mmkvPersister } from '@/lib/query-persister';
+import { storage } from '@/lib/storage';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
-import { ActivityIndicator, View } from 'react-native';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // Prevent the splash screen from auto-hiding
 SplashScreen.preventAutoHideAsync();
@@ -25,52 +24,78 @@ export default function RootLayout() {
 	const colorScheme = useColorScheme();
 	const { fontsLoaded } = useFonts();
 	const segments = useSegments();
-	
-	// Check auth state synchronously at startup to avoid flash
-	// This runs once during component initialization, before first render
-	const [authState, setAuthState] = useState(() => {
-		const isAuthenticated = storage.contains("session_token");
-		const onboardingDone = storage.getString("onboarding-done") === 'true';
-		return { isAuthenticated, onboardingDone, isInitialized: true };
-	});
+	const navigationState = useRootNavigationState();
+	const hasInitialNavigated = useRef(false);
+	const lastRedirectTarget = useRef<string | null>(null);
+	const [isReady, setIsReady] = useState(false);
 
-	// Determine initial route based on auth state
-	// This is calculated synchronously from the initial state, so no flash occurs
-	const initialRoute: "/(auth)/onboarding" | "/(auth)" | "/(tabs)" = (() => {
-		if (!authState.onboardingDone) {
-			return "/(auth)/onboarding";
-		} else if (!authState.isAuthenticated) {
-			return "/(auth)";
-		} else {
-			return "/(tabs)";
-		}
-	})();
+	// Current location info
+	const isOnAuthGroup = segments[0] === "(auth)";
+	const isOnTabsGroup = segments[0] === "(tabs)";
+	const isOnCallback = isOnAuthGroup && segments[1] === "callback";
+	const isAuthenticated = storage.contains("session_token");
+	const segmentsKey = segments.join("/");
 
-	// Check if we're on the correct route based on segments
-	const expectedSegment = initialRoute.replace(/[()]/g, '').split('/').filter(Boolean)[0];
-	const isOnCorrectRoute = segments.length > 0 && (
-		segments[0] === expectedSegment ||
-		(initialRoute === "/(tabs)" && segments[0] === "tabs") ||
-		(initialRoute === "/(auth)" && (segments[0] === "auth" || segments.length === 0)) ||
-		(initialRoute === "/(auth)/onboarding" && segments[0] === "auth" && segments[1] === "onboarding")
-	);
-
-	// Hide splash screen only when everything is ready AND we're on the correct route
+	// Handle navigation - only for auth boundary protection
 	useEffect(() => {
-		if (!fontsLoaded || !authState.isInitialized) {
+		// Wait for navigation to be ready and have segments (layout mounted)
+		if (!navigationState?.key || segments.length === 0) return;
+		
+		// Don't interfere with callback - it handles its own redirect
+		if (isOnCallback) return;
+
+		// Mark initial navigation as done and set ready
+		if (!hasInitialNavigated.current) {
+			hasInitialNavigated.current = true;
+			setIsReady(true);
+			// On initial load, redirect authenticated users to tabs
+			if (isAuthenticated && !isOnTabsGroup) {
+				lastRedirectTarget.current = "/(tabs)";
+				setTimeout(() => router.replace("/(tabs)"), 0);
+			}
 			return;
 		}
 
-		// Wait until we're on the correct route before hiding splash
-		if (!isOnCorrectRoute && segments.length === 0) {
-			// Still initializing, wait a bit
+		// Clear last redirect target if we've arrived somewhere different
+		if (lastRedirectTarget.current) {
+			const arrivedAtTarget = 
+				(lastRedirectTarget.current === "/(auth)" && isOnAuthGroup) ||
+				(lastRedirectTarget.current === "/(tabs)" && isOnTabsGroup);
+			if (arrivedAtTarget) {
+				lastRedirectTarget.current = null;
+			} else {
+				// Still waiting for redirect to complete
+				return;
+			}
+		}
+
+		// After initial load, only protect auth boundaries:
+		// - Protect tabs: redirect to login if not authenticated
+		// - Redirect to tabs if authenticated and on login screen only (not onboarding)
+		
+		if (isOnTabsGroup && !isAuthenticated) {
+			lastRedirectTarget.current = "/(auth)";
+			setTimeout(() => router.replace("/(auth)"), 0);
 			return;
 		}
+
+		// Only redirect from login screen, not from onboarding
+		const isOnLoginScreen = isOnAuthGroup && !segments[1];
+		if (isAuthenticated && isOnLoginScreen) {
+			lastRedirectTarget.current = "/(tabs)";
+			setTimeout(() => router.replace("/(tabs)"), 0);
+			return;
+		}
+
+	}, [segmentsKey, navigationState?.key, isOnCallback, isOnTabsGroup, isOnAuthGroup, isAuthenticated]);
+
+	// Hide splash screen only when fonts loaded AND we're on the correct screen
+	useEffect(() => {
+		if (!fontsLoaded || !navigationState?.key || !isReady) return;
 
 		async function hideSplash() {
 			try {
-				// Delay to ensure everything is rendered and navigation completed
-				await new Promise(resolve => setTimeout(resolve, 200));
+				await new Promise(resolve => setTimeout(resolve, 50));
 				await SplashScreen.hideAsync();
 			} catch (e) {
 				console.warn(e);
@@ -78,26 +103,11 @@ export default function RootLayout() {
 			}
 		}
 
-		// Only hide if we're on correct route or if we've waited long enough
-		if (isOnCorrectRoute || segments.length > 0) {
-			hideSplash();
-		}
-	}, [fontsLoaded, authState.isInitialized, isOnCorrectRoute, segments]);
+		hideSplash();
+	}, [fontsLoaded, navigationState?.key, isReady]);
 
-	// Re-check auth state when navigation segments change
-	// This catches auth state changes after login
-	useEffect(() => {
-		const auth = storage.contains("session_token");
-		const onboarding = storage.getString("onboarding-done") === 'true';
-		setAuthState(prev => ({
-			...prev,
-			isAuthenticated: auth,
-			onboardingDone: onboarding
-		}));
-	}, [segments]);
-
-	// Don't render anything until fonts are loaded - keep splash visible
-	if (!fontsLoaded || !authState.isInitialized) {
+	// Don't render anything until fonts are loaded
+	if (!fontsLoaded) {
 		return null;
 	}
 
@@ -111,7 +121,6 @@ export default function RootLayout() {
 					<Stack.Screen name="(auth)" />
 					<Stack.Screen name="(tabs)" />
 				</Stack>
-				<Redirect href={initialRoute} />
 				<StatusBar style="auto" />
 			</ThemeProvider>
 		</PersistQueryClientProvider>

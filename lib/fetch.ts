@@ -1,6 +1,6 @@
 import { getApiUrl } from "@/constants/api";
 import { navigate } from "expo-router/build/global-state/routing";
-import { storage } from "./storage";
+import { clearAuthData, storage } from "./storage";
 import type {
 	AuthUserInfo,
 	Station,
@@ -12,6 +12,8 @@ import type {
 	PgtypePoint,
 	PgtypeText,
 	PgtypeTimestamp,
+	LatestMeasurementsResponse,
+	MeasurementsResponse,
 } from "./types";
 import type { AuthProvider } from "@/constants/providers";
 
@@ -90,7 +92,7 @@ function transformStation(backendStation: Station): Station {
 export const fetchUserInfo = async (): Promise<AuthUserInfo> => {
 	const sessionToken = storage.getString("session_token");
 	if (!sessionToken) {
-		storage.clearAll();
+		clearAuthData();
 		navigate("/(auth)");
 		throw new Error('No session token found');
 	}
@@ -106,7 +108,7 @@ export const fetchUserInfo = async (): Promise<AuthUserInfo> => {
 
 		if (!response.ok) {
 			if (response.status == 401 || response.status == 403) {
-				storage.clearAll()
+				clearAuthData()
 				navigate("/(auth)")
 			}
 			throw new Error(`HTTP error! status: ${response.status}`);
@@ -123,7 +125,7 @@ export const fetchUserInfo = async (): Promise<AuthUserInfo> => {
 export const fetchStations = async (): Promise<Station[]> => {
 	const sessionToken = storage.getString("session_token");
 	if (!sessionToken) {
-		storage.clearAll();
+		clearAuthData();
 		navigate("/(auth)");
 		throw new Error('No session token found');
 	}
@@ -139,7 +141,7 @@ export const fetchStations = async (): Promise<Station[]> => {
 
 		if (!response.ok) {
 			if (response.status == 401 || response.status == 403) {
-				storage.clearAll()
+				clearAuthData()
 				navigate("/(auth)")
 			}
 			throw new Error(`HTTP error! status: ${response.status}`);
@@ -157,7 +159,7 @@ export const fetchStations = async (): Promise<Station[]> => {
 export const createStation = async (name: string, location: [number, number]): Promise<CreateStationOutput> => {
 	const sessionToken = storage.getString("session_token");
 	if (!sessionToken) {
-		storage.clearAll();
+		clearAuthData();
 		navigate("/(auth)");
 		throw new Error('No session token found');
 	}
@@ -179,7 +181,7 @@ export const createStation = async (name: string, location: [number, number]): P
 
 		if (!response.ok) {
 			if (response.status == 401 || response.status == 403) {
-				storage.clearAll()
+				clearAuthData()
 				navigate("/(auth)")
 			}
 			throw new Error(`HTTP error! status: ${response.status}`);
@@ -196,7 +198,7 @@ export const createStation = async (name: string, location: [number, number]): P
 export const updateStation = async (id: string, name?: string, location?: [number, number]): Promise<UpdateStationOutput> => {
 	const sessionToken = storage.getString("session_token");
 	if (!sessionToken) {
-		storage.clearAll();
+		clearAuthData();
 		navigate("/(auth)");
 		throw new Error('No session token found');
 	}
@@ -217,7 +219,7 @@ export const updateStation = async (id: string, name?: string, location?: [numbe
 
 		if (!response.ok) {
 			if (response.status == 401 || response.status == 403) {
-				storage.clearAll()
+				clearAuthData()
 				navigate("/(auth)")
 			}
 			throw new Error(`HTTP error! status: ${response.status}`);
@@ -234,7 +236,7 @@ export const updateStation = async (id: string, name?: string, location?: [numbe
 export const deleteStation = async (id: string) => {
 	const sessionToken = storage.getString("session_token");
 	if (!sessionToken) {
-		storage.clearAll();
+		clearAuthData();
 		navigate("/(auth)");
 		throw new Error('No session token found');
 	}
@@ -250,7 +252,7 @@ export const deleteStation = async (id: string) => {
 
 		if (!response.ok) {
 			if (response.status == 401 || response.status == 403) {
-				storage.clearAll()
+				clearAuthData()
 				navigate("/(auth)")
 			}
 			throw new Error(`HTTP error! status: ${response.status}`);
@@ -266,7 +268,7 @@ export const deleteStation = async (id: string) => {
 export const regenerateStationToken = async (id: string) => {
 	const sessionToken = storage.getString("session_token");
 	if (!sessionToken) {
-		storage.clearAll();
+		clearAuthData();
 		navigate("/(auth)");
 		throw new Error('No session token found');
 	}
@@ -282,7 +284,7 @@ export const regenerateStationToken = async (id: string) => {
 
 		if (!response.ok) {
 			if (response.status == 401 || response.status == 403) {
-				storage.clearAll()
+				clearAuthData()
 				navigate("/(auth)")
 			}
 			throw new Error(`HTTP error! status: ${response.status}`);
@@ -292,6 +294,86 @@ export const regenerateStationToken = async (id: string) => {
 		return result;
 	} catch (error) {
 		console.error('Error regenerating station token:', error);
+		throw error;
+	}
+};
+
+export const fetchLatestMeasurements = async (stationId: string): Promise<LatestMeasurementsResponse> => {
+	const sessionToken = storage.getString("session_token");
+	if (!sessionToken) {
+		clearAuthData();
+		navigate("/(auth)");
+		throw new Error('No session token found');
+	}
+
+	try {
+		const response = await fetch(`${getApiUrl()}/station/${stationId}/measurement/latest`, {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${sessionToken}`,
+				'Content-Type': 'application/json',
+			},
+		});
+
+		if (!response.ok) {
+			if (response.status == 401 || response.status == 403) {
+				clearAuthData()
+				navigate("/(auth)")
+			}
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+
+		const data: LatestMeasurementsResponse = await response.json();
+		return data;
+	} catch (error) {
+		console.error('Error fetching latest measurements:', error);
+		throw error;
+	}
+};
+
+export const fetchMeasurements = async (
+	stationId: string,
+	from: string,
+	to: string,
+	interval: string,
+	source?: 'station' | 'official'
+): Promise<MeasurementsResponse> => {
+	const sessionToken = storage.getString("session_token");
+	if (!sessionToken) {
+		clearAuthData();
+		navigate("/(auth)");
+		throw new Error('No session token found');
+	}
+
+	try {
+		const url = new URL(`${getApiUrl()}/station/${stationId}/measurement`);
+		url.searchParams.append('from', from);
+		url.searchParams.append('to', to);
+		url.searchParams.append('interval', interval);
+		if (source) {
+			url.searchParams.append('source', source);
+		}
+
+		const response = await fetch(url.toString(), {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${sessionToken}`,
+				'Content-Type': 'application/json',
+			},
+		});
+
+		if (!response.ok) {
+			if (response.status == 401 || response.status == 403) {
+				clearAuthData()
+				navigate("/(auth)")
+			}
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+
+		const data: MeasurementsResponse = await response.json();
+		return data;
+	} catch (error) {
+		console.error('Error fetching measurements:', error);
 		throw error;
 	}
 };

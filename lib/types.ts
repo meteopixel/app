@@ -84,6 +84,49 @@ export interface RegenerateTokenOutput {
 	api_key?: string;
 }
 
+// Measurement types
+export interface MeasurementData {
+	station?: number;
+	official?: number;
+	delta?: number;
+}
+
+export interface WindData {
+	direction?: MeasurementData;
+	speed?: MeasurementData;
+}
+
+export interface DataBucket {
+	avg?: number;
+	min?: number;
+	max?: number;
+}
+
+export interface MeasurementsBucket {
+	time?: string;
+	temperature?: DataBucket;
+	humidity?: DataBucket;
+	pressure?: DataBucket;
+	windSpeed?: DataBucket;
+	windDirection?: DataBucket;
+}
+
+export interface MeasurementsResponse {
+	data?: MeasurementsBucket[];
+	from?: string;
+	to?: string;
+	interval?: string;
+	source?: string;
+	stationID?: string;
+}
+
+export interface LatestMeasurementsResponse {
+	humidity?: MeasurementData;
+	pressure?: MeasurementData;
+	temprature?: MeasurementData; // Note: API has typo "temprature"
+	wind?: WindData;
+}
+
 // Legacy type aliases for backward compatibility
 export type userData = AuthUserInfo;
 export type station = Station;

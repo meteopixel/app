@@ -3,6 +3,7 @@ import { PixelartIcon } from '@/components/ui/pixelart-icon';
 import { getApiUrl } from '@/constants/api';
 import '@/global.css';
 import { useAuthProviders } from '@/lib/queries/useAuthProviders';
+import { storage } from '@/lib/storage';
 import * as Linking from 'expo-linking';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
@@ -72,7 +73,11 @@ export default function LoginScreen() {
 
 		<View className="flex-1 bg-bg-primary px-6 items-center w-screen" style={{ position: 'relative' }}>
 			<TouchableOpacity
-				onPress={() => router.replace('/(auth)/onboarding')}
+				onPress={() => {
+					// Clear onboarding flag so user can change server
+					storage.remove('onboarding-done');
+					router.replace('/(auth)/onboarding');
+				}}
 				className="absolute top-20 left-10 z-10 w-10 h-10 items-center justify-center"
 				activeOpacity={0.8}
 				style={{
@@ -121,13 +126,12 @@ export default function LoginScreen() {
 				</Text>
 			</View>
 			<View 
-				className="w-full gap-4 pb-8"
+				className="gap-4 pb-8"
 				style={{
 					position: 'absolute',
 					bottom: 0,
 					left: 20,
 					right: 20,
-					paddingHorizontal: 0,
 				}}
 			>
 				{displayProviders.map((provider) => {

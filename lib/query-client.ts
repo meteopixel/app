@@ -1,6 +1,6 @@
 import { QueryClient } from '@tanstack/react-query';
 import { navigate } from 'expo-router/build/global-state/routing';
-import { storage } from './storage';
+import { clearAuthData } from './storage';
 
 export const queryClient = new QueryClient({
 	defaultOptions: {
@@ -29,7 +29,7 @@ queryClient.getQueryCache().subscribe((event) => {
 		const error = event?.error as any;
 		// Handle auth errors globally
 		if (error?.status === 401 || error?.status === 403) {
-			storage.clearAll();
+			clearAuthData();
 			navigate('/(auth)');
 		}
 	}

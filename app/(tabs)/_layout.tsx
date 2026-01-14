@@ -3,22 +3,25 @@ import React from 'react';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { PixelartIcon } from '@/components/ui/pixelart-icon';
+import { ColorScheme } from '@/constants/colors';
 import { Fonts } from '@/constants/fonts';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import { isAdmin } from '@/lib/storage';
 
 export default function TabLayout() {
-	const colorScheme = useColorScheme();
-
 	return (
 		<Tabs
 			screenOptions={{
-				tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+				tabBarActiveTintColor: ColorScheme['accent-primary'],
+				tabBarInactiveTintColor: ColorScheme['text-secondary'],
 				headerShown: false,
 				tabBarButton: HapticTab,
 				tabBarLabelStyle: {
 					fontFamily: Fonts.pixelify,
+				},
+				tabBarStyle: {
+					backgroundColor: ColorScheme['bg-secondary'],
+					borderTopColor: ColorScheme['border'],
+					borderTopWidth: 1,
 				},
 			}}>
 			<Tabs.Screen
