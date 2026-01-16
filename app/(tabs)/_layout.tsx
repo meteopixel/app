@@ -30,7 +30,15 @@ export default function TabLayout() {
 					title: 'Home',
 					tabBarIcon: ({ color }) => <PixelartIcon name="home" size={28} color={color} />,
 				}}
-			/><Tabs.Screen
+			/>
+			<Tabs.Screen
+				name="history"
+				options={{
+					title: 'History',
+					tabBarIcon: ({ color }) => <PixelartIcon name="timeline" size={28} color={color} />,
+				}}
+			/>
+			<Tabs.Screen
 				name="stations"
 				redirect={!isAdmin()}
 				options={{

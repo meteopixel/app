@@ -11,8 +11,9 @@ import { useMeasurements } from '@/lib/queries/useMeasurements';
 import { useStations } from '@/lib/queries/useStations';
 import { getSelectedStationId, setSelectedStationId } from '@/lib/storage';
 import { formatDateTime } from '@/lib/utils/measurements';
+import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, View } from 'react-native';
+import { ActivityIndicator, ScrollView, TouchableOpacity, View } from 'react-native';
 
 // Refresh interval for chart data (in milliseconds) - less frequent than latest measurements
 const CHART_REFRESH_INTERVAL = 30 * 1000; // 30 seconds
@@ -201,10 +202,14 @@ export default function HomeScreen() {
 
 				{/* Past Week Section */}
 				<View className="mb-4">
-					<View className="flex-row items-center justify-between mb-3">
+					<TouchableOpacity
+						className="flex-row items-center justify-between mb-3"
+						onPress={() => router.push('/history')}
+						activeOpacity={0.7}
+					>
 						<Text className="text-text-primary text-lg">Past week</Text>
 						<PixelartIcon name="chevron-right" size={20} color="#e6edf3" />
-					</View>
+					</TouchableOpacity>
 					{weekLoading ? (
 						<View className="py-5 items-center gap-2">
 							<ActivityIndicator size="small" color="#58a6ff" />
