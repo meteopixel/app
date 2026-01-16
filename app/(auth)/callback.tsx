@@ -1,15 +1,22 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { storage } from '@/lib/storage';
+import { queryClient } from '@/lib/query-client';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { ActivityIndicator } from 'react-native';
 
 export default function AuthCallback() {
 	const params = useLocalSearchParams();
+	const hasProcessed = useRef(false);
 
 	useEffect(() => {
+		// Prevent multiple processing
+		if (hasProcessed.current) return;
+
 		const processCallback = async () => {
+			hasProcessed.current = true;
+			
 			try {
 				let resp: string | undefined;
 				
@@ -20,7 +27,14 @@ export default function AuthCallback() {
 				
 				if (!resp) {
 					console.error('No response parameter in callback');
-					router.replace('/(auth)');
+					hasProcessed.current = false;
+					setTimeout(() => {
+						try {
+							router.replace('/(auth)');
+						} catch (error) {
+							console.error('Navigation error:', error);
+						}
+					}, 100);
 					return;
 				}
 
@@ -30,7 +44,14 @@ export default function AuthCallback() {
 				
 				if (!userinfo.session_token) {
 					console.error('No session token in auth response');
-					router.replace('/(auth)');
+					hasProcessed.current = false;
+					setTimeout(() => {
+						try {
+							router.replace('/(auth)');
+						} catch (error) {
+							console.error('Navigation error:', error);
+						}
+					}, 100);
 					return;
 				}
 
@@ -45,11 +66,36 @@ export default function AuthCallback() {
 				storage.set('userinfo', JSON.stringify(user));
 				storage.set('session_token', userinfo.session_token);
 				
-				// Navigate to main app
-				router.replace('/(tabs)');
+				// Clear query cache to ensure fresh data
+				queryClient.clear();
+				
+				// Wait a bit longer to ensure storage is written and root layout sees the change
+				await new Promise(resolve => setTimeout(resolve, 200));
+				
+				// Navigate to main app with error handling
+				try {
+					router.replace('/(tabs)');
+				} catch (error) {
+					console.error('Navigation error:', error);
+					// Retry after a short delay
+					setTimeout(() => {
+						try {
+							router.replace('/(tabs)');
+						} catch (retryError) {
+							console.error('Navigation retry error:', retryError);
+						}
+					}, 100);
+				}
 			} catch (error) {
 				console.error('Error processing auth callback:', error);
-				router.replace('/(auth)');
+				hasProcessed.current = false;
+				setTimeout(() => {
+					try {
+						router.replace('/(auth)');
+					} catch (navError) {
+						console.error('Navigation error:', navError);
+					}
+				}, 100);
 			}
 		};
 

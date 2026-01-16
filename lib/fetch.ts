@@ -1,6 +1,7 @@
 import { getApiUrl } from "@/constants/api";
-import { navigate } from "expo-router/build/global-state/routing";
+import { router } from "expo-router";
 import { clearAuthData, storage } from "./storage";
+import { queryClient } from "./query-client";
 import type {
 	AuthUserInfo,
 	Station,
@@ -93,7 +94,8 @@ export const fetchUserInfo = async (): Promise<AuthUserInfo> => {
 	const sessionToken = storage.getString("session_token");
 	if (!sessionToken) {
 		clearAuthData();
-		navigate("/(auth)");
+		queryClient.clear();
+		router.replace("/(auth)");
 		throw new Error('No session token found');
 	}
 
@@ -108,8 +110,9 @@ export const fetchUserInfo = async (): Promise<AuthUserInfo> => {
 
 		if (!response.ok) {
 			if (response.status == 401 || response.status == 403) {
-				clearAuthData()
-				navigate("/(auth)")
+				clearAuthData();
+				queryClient.clear();
+				router.replace("/(auth)");
 			}
 			throw new Error(`HTTP error! status: ${response.status}`);
 		}
@@ -126,7 +129,8 @@ export const fetchStations = async (): Promise<Station[]> => {
 	const sessionToken = storage.getString("session_token");
 	if (!sessionToken) {
 		clearAuthData();
-		navigate("/(auth)");
+		queryClient.clear();
+		router.replace("/(auth)");
 		throw new Error('No session token found');
 	}
 
@@ -141,8 +145,9 @@ export const fetchStations = async (): Promise<Station[]> => {
 
 		if (!response.ok) {
 			if (response.status == 401 || response.status == 403) {
-				clearAuthData()
-				navigate("/(auth)")
+				clearAuthData();
+				queryClient.clear();
+				router.replace("/(auth)");
 			}
 			throw new Error(`HTTP error! status: ${response.status}`);
 		}
@@ -160,7 +165,8 @@ export const createStation = async (name: string, location: [number, number]): P
 	const sessionToken = storage.getString("session_token");
 	if (!sessionToken) {
 		clearAuthData();
-		navigate("/(auth)");
+		queryClient.clear();
+		router.replace("/(auth)");
 		throw new Error('No session token found');
 	}
 
@@ -181,8 +187,9 @@ export const createStation = async (name: string, location: [number, number]): P
 
 		if (!response.ok) {
 			if (response.status == 401 || response.status == 403) {
-				clearAuthData()
-				navigate("/(auth)")
+				clearAuthData();
+				queryClient.clear();
+				router.replace("/(auth)");
 			}
 			throw new Error(`HTTP error! status: ${response.status}`);
 		}
@@ -199,7 +206,8 @@ export const updateStation = async (id: string, name?: string, location?: [numbe
 	const sessionToken = storage.getString("session_token");
 	if (!sessionToken) {
 		clearAuthData();
-		navigate("/(auth)");
+		queryClient.clear();
+		router.replace("/(auth)");
 		throw new Error('No session token found');
 	}
 
@@ -219,8 +227,9 @@ export const updateStation = async (id: string, name?: string, location?: [numbe
 
 		if (!response.ok) {
 			if (response.status == 401 || response.status == 403) {
-				clearAuthData()
-				navigate("/(auth)")
+				clearAuthData();
+				queryClient.clear();
+				router.replace("/(auth)");
 			}
 			throw new Error(`HTTP error! status: ${response.status}`);
 		}
@@ -237,7 +246,8 @@ export const deleteStation = async (id: string) => {
 	const sessionToken = storage.getString("session_token");
 	if (!sessionToken) {
 		clearAuthData();
-		navigate("/(auth)");
+		queryClient.clear();
+		router.replace("/(auth)");
 		throw new Error('No session token found');
 	}
 
@@ -252,8 +262,9 @@ export const deleteStation = async (id: string) => {
 
 		if (!response.ok) {
 			if (response.status == 401 || response.status == 403) {
-				clearAuthData()
-				navigate("/(auth)")
+				clearAuthData();
+				queryClient.clear();
+				router.replace("/(auth)");
 			}
 			throw new Error(`HTTP error! status: ${response.status}`);
 		}
@@ -269,7 +280,8 @@ export const regenerateStationToken = async (id: string) => {
 	const sessionToken = storage.getString("session_token");
 	if (!sessionToken) {
 		clearAuthData();
-		navigate("/(auth)");
+		queryClient.clear();
+		router.replace("/(auth)");
 		throw new Error('No session token found');
 	}
 
@@ -284,8 +296,9 @@ export const regenerateStationToken = async (id: string) => {
 
 		if (!response.ok) {
 			if (response.status == 401 || response.status == 403) {
-				clearAuthData()
-				navigate("/(auth)")
+				clearAuthData();
+				queryClient.clear();
+				router.replace("/(auth)");
 			}
 			throw new Error(`HTTP error! status: ${response.status}`);
 		}
@@ -302,7 +315,8 @@ export const fetchLatestMeasurements = async (stationId: string): Promise<Latest
 	const sessionToken = storage.getString("session_token");
 	if (!sessionToken) {
 		clearAuthData();
-		navigate("/(auth)");
+		queryClient.clear();
+		router.replace("/(auth)");
 		throw new Error('No session token found');
 	}
 
@@ -317,8 +331,9 @@ export const fetchLatestMeasurements = async (stationId: string): Promise<Latest
 
 		if (!response.ok) {
 			if (response.status == 401 || response.status == 403) {
-				clearAuthData()
-				navigate("/(auth)")
+				clearAuthData();
+				queryClient.clear();
+				router.replace("/(auth)");
 			}
 			throw new Error(`HTTP error! status: ${response.status}`);
 		}
@@ -341,7 +356,8 @@ export const fetchMeasurements = async (
 	const sessionToken = storage.getString("session_token");
 	if (!sessionToken) {
 		clearAuthData();
-		navigate("/(auth)");
+		queryClient.clear();
+		router.replace("/(auth)");
 		throw new Error('No session token found');
 	}
 
@@ -364,8 +380,9 @@ export const fetchMeasurements = async (
 
 		if (!response.ok) {
 			if (response.status == 401 || response.status == 403) {
-				clearAuthData()
-				navigate("/(auth)")
+				clearAuthData();
+				queryClient.clear();
+				router.replace("/(auth)");
 			}
 			throw new Error(`HTTP error! status: ${response.status}`);
 		}

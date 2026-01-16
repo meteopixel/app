@@ -1,6 +1,7 @@
 import { Text } from '@/components/text';
 import { DEFAULT_API_URL } from '@/constants/api';
-import { storage } from '@/lib/storage';
+import { storage, clearAuthData } from '@/lib/storage';
+import { queryClient } from '@/lib/query-client';
 import { useUserInfo } from '@/lib/queries/useUserInfo';
 import { router } from 'expo-router';
 import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
@@ -8,18 +9,36 @@ import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
 export default function Account() {
 	const { data: user, isLoading: loading, error } = useUserInfo();
 
-	const handleLogout = () => {
+	const handleLogout = async () => {
 		// Clear user authentication data
-		// MMKV doesn't have delete method, so we clear the specific keys by setting to undefined
-		storage.remove('session_token');
-		storage.remove('userinfo');
-		// Redirect to login
-		router.replace('/(auth)');
+		clearAuthData();
+		// Clear React Query cache
+		queryClient.clear();
+		// Wait longer to ensure state is fully cleared
+		await new Promise(resolve => setTimeout(resolve, 150));
+		// Redirect to login with error handling
+		try {
+			router.replace('/(auth)');
+		} catch (error) {
+			console.error('Navigation error on logout:', error);
+			// Retry after a short delay
+			setTimeout(() => {
+				try {
+					router.replace('/(auth)');
+				} catch (retryError) {
+					console.error('Navigation retry error:', retryError);
+				}
+			}, 100);
+		}
 	};
 
-	const handleDeleteAll = () => {
+	const handleDeleteAll = async () => {
 		// Clear all app storage
 		storage.clearAll();
+		// Clear React Query cache
+		queryClient.clear();
+		// Small delay to ensure state is cleared
+		await new Promise(resolve => setTimeout(resolve, 50));
 		// Redirect to onboarding
 		router.replace('/(auth)/onboarding');
 	};

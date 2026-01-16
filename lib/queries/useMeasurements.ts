@@ -7,7 +7,8 @@ export const useMeasurements = (
 	from: string,
 	to: string,
 	interval: string,
-	source?: 'station' | 'official'
+	source?: 'station' | 'official',
+	refetchInterval?: number
 ) => {
 	return useQuery<MeasurementsResponse>({
 		queryKey: ['measurements', stationId, from, to, interval, source],
@@ -21,5 +22,6 @@ export const useMeasurements = (
 		placeholderData: (previousData) => previousData,
 		refetchOnMount: true,
 		keepPreviousData: false,
+		refetchInterval: refetchInterval,
 	});
 };

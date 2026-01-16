@@ -1,6 +1,7 @@
 import { createMMKV } from 'react-native-mmkv';
 import { userData } from './fetch';
 
+const QUERY_CACHE_KEY = 'react-query-cache';
 
 export const storage = createMMKV()
 
@@ -9,6 +10,8 @@ export function clearAuthData() {
 	storage.remove('session_token');
 	storage.remove('userinfo');
 	storage.remove('selectedStationId');
+	// Clear query cache from storage
+	storage.remove(QUERY_CACHE_KEY);
 	// Clear any station-related cache but keep app settings
 	const allKeys = storage.getAllKeys();
 	for (const key of allKeys) {

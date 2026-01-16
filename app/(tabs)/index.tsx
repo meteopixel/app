@@ -14,6 +14,9 @@ import { formatDateTime } from '@/lib/utils/measurements';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, View } from 'react-native';
 
+// Refresh interval for chart data (in milliseconds) - less frequent than latest measurements
+const CHART_REFRESH_INTERVAL = 30 * 1000; // 30 seconds
+
 export default function HomeScreen() {
 	const { data: stations, isLoading: stationsLoading } = useStations();
 	const [selectedStationId, setSelectedStationIdState] = useState<string | undefined>(undefined);
@@ -57,8 +60,20 @@ export default function HomeScreen() {
 	// Fetch latest measurements (auto-refreshes every X seconds)
 	const { data: latestMeasurements, isLoading: latestLoading, isFetching: latestFetching } = useLatestMeasurements(selectedStationId);
 
-	// Calculate time ranges for charts
-	const now = new Date();
+	// Track current time and update it periodically to refresh chart data
+	const [currentTime, setCurrentTime] = useState(new Date());
+
+	// Update current time periodically to trigger chart data refresh
+	useEffect(() => {
+		const interval = setInterval(() => {
+			setCurrentTime(new Date());
+		}, CHART_REFRESH_INTERVAL);
+
+		return () => clearInterval(interval);
+	}, []);
+
+	// Calculate time ranges for charts (using currentTime so it updates)
+	const now = currentTime;
 	
 	// Today from midnight (00:00) to now
 	const todayMidnight = new Date(now);
@@ -77,7 +92,8 @@ export default function HomeScreen() {
 		fromToday,
 		toNow,
 		'1 hour',
-		'station'
+		'station',
+		CHART_REFRESH_INTERVAL
 	);
 
 	// Fetch 7-day data for past week (using station data)
@@ -86,7 +102,8 @@ export default function HomeScreen() {
 		from7d,
 		to7d,
 		'1 day',
-		'station'
+		'station',
+		CHART_REFRESH_INTERVAL
 	);
 
 	// Get current temperature
@@ -150,7 +167,12 @@ export default function HomeScreen() {
 							<Text className="text-text-secondary text-sm">Loading chart...</Text>
 						</View>
 					) : (
-						<TemperatureChart data={(chartData as any)?.data} height={180} />
+						<TemperatureChart 
+							data={(chartData as any)?.data} 
+							height={180}
+							fromTime={fromToday}
+							toTime={toNow}
+						/>
 					)}
 				</View>
 
