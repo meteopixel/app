@@ -1,50 +1,34 @@
-# Welcome to your Expo app 👋
+# Meteopixel App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A React Native mobile and web app for visualizing weather station data in real-time. Compare your station measurements with official weather data from Open-Meteo.
 
-## Get started
+This is our IDPA project for our BM. The idea was to build a weather station and create a system to collect and compare the data we collect to official sources (OpenMeteo API). We have two main components: a [Go backend](https://github.com/meteopixel/backend) which handles storage, ingestion, and comparison of the data points, and this React Native frontend to visualize these things instantly.
 
-1. Install dependencies
+Built with Expo and React Native, using React Query for data fetching and NativeWind for styling.
 
-   ```bash
-   npm install
-   ```
+## Tech Stack
 
-2. Start the app
+- [Expo](https://expo.dev/) 
+- [Expo Router](https://docs.expo.dev/router/introduction/) 
+- [React Query](https://tanstack.com/query) 
+- [NativeWind](https://www.nativewind.dev/) 
+- [React Native MMKV](https://github.com/mrousavy/react-native-mmkv) ^
 
-   ```bash
-   npx expo start
-   ```
+## Getting Started
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+Install dependencies:
 
 ```bash
-npm run reset-project
+bun install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Then run it:
 
-## Learn more
+```bash
+bun run start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Configuration
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+On first launch, the app will prompt you to choose a server URL. The default is the hosted instance, but you can enter your own backend URL (e.g., `http://127.0.0.1:8080`). You can change this later by going back to the onboarding screen from the login page.
