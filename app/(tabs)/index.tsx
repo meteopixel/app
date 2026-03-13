@@ -75,11 +75,11 @@ export default function HomeScreen() {
 
 	// Calculate time ranges for charts (using currentTime so it updates)
 	const now = currentTime;
-	
+
 	// Today from midnight (00:00) to now
 	const todayMidnight = new Date(now);
 	todayMidnight.setHours(0, 0, 0, 0);
-	
+
 	const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
 	const fromToday = todayMidnight.toISOString();
@@ -116,7 +116,7 @@ export default function HomeScreen() {
 
 	// Get wind, humidity, pressure values
 	const windSpeed = latestMeasurements?.wind?.speed?.station ?? latestMeasurements?.wind?.speed?.official;
-	const windDirection = latestMeasurements?.wind?.direction?.station ?? latestMeasurements?.wind?.direction?.official;
+	const windDirection = (((latestMeasurements?.wind?.direction?.station ?? latestMeasurements?.wind?.direction?.official ?? 0) - 90) % 360 + 360) % 360;
 	const humidity = latestMeasurements?.humidity?.station ?? latestMeasurements?.humidity?.official;
 	const pressure = latestMeasurements?.pressure?.station ?? latestMeasurements?.pressure?.official;
 
@@ -168,8 +168,8 @@ export default function HomeScreen() {
 							<Text className="text-text-secondary text-sm">Loading chart...</Text>
 						</View>
 					) : (
-						<TemperatureChart 
-							data={(chartData as any)?.data} 
+						<TemperatureChart
+							data={(chartData as any)?.data}
 							height={180}
 							fromTime={fromToday}
 							toTime={toNow}
