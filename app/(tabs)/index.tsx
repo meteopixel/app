@@ -116,7 +116,7 @@ export default function HomeScreen() {
 
 	// Get wind, humidity, pressure values
 	const windSpeed = latestMeasurements?.wind?.speed?.station ?? latestMeasurements?.wind?.speed?.official;
-	const windDirection = (((latestMeasurements?.wind?.direction?.station ?? latestMeasurements?.wind?.direction?.official ?? 0) - 90) % 360 + 360) % 360;
+	const windDirection = (((latestMeasurements?.wind?.direction?.station ?? latestMeasurements?.wind?.direction?.official ?? 0) + 90) % 360 + 360) % 360;
 	const humidity = latestMeasurements?.humidity?.station ?? latestMeasurements?.humidity?.official;
 	const pressure = latestMeasurements?.pressure?.station ?? latestMeasurements?.pressure?.official;
 
